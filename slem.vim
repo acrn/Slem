@@ -1,5 +1,5 @@
 
-py3 << endpython
+python << endpython
 
 import vim
 
@@ -129,7 +129,7 @@ def ask_vars(screen=False, window=False):
 
 endpython
 function! VimSlem(to_line)
-py3 << endpython
+python << endpython
 import os
 from pipes import quote
 if len(slem_vars['screen']) < 1:
@@ -152,7 +152,7 @@ endpython
 endfunction
 
 function! VimSlemSettings(args)
-py3 << endpython
+python << endpython
 ask_vars(screen=('screen' in vim.eval('a:args')),
          window=('window' in vim.eval('a:args')))
 endpython
