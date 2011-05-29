@@ -1,4 +1,3 @@
-
 python << endpython
 
 import vim
@@ -148,14 +147,6 @@ def find_block_line(coords):
     l = coords[0] - 1
     return ((l, 0), move_back((l + 1, 0)))
 
-def get_file_ext():
-    '''Returns the file extension of the current buffer, that is: '.py' for a
-    python file, for example.
-    TODO: Find out if there is a vim property for this
-    TODO: Refactor this into a lambda'''
-
-    return vim.current.buffer.name.rsplit('.',1)[1]
-
 def get_blocking_fn(args={}):
     '''Returns a suitable function for selecting a range surrounding a position
     in the current buffer to send to an interpreter. The selection is based on
@@ -200,39 +191,42 @@ def extract(start, end):
     o.append(vim.current.buffer[l][:end[1]+1])    
     return o    
 
-slem_vars = {'screen':'', 'window':'0'}    
+SLEM_VARS = {'screen':'', 'window':'0'}    
 
 def ask_vars(screen=False, window=False):
     '''Ask the user to supply the specified variables. The answers are stored
-    in the global dict 'slem_vars'.
+    in the global dict 'SLEM_VARS'.
     TODO: Find out if there is a prettier way of doing this, without using
           vim commands.'''
 
     if screen:
-        vim.command('let __slem_sc = input("screen name: ", "' + slem_vars['screen'] + '")')
-        slem_vars['screen'] = vim.eval('__slem_sc')
+        vim.command('let __slem_sc = input("screen name: ", "' +
+            SLEM_VARS['screen'] + '")')
+        SLEM_VARS['screen'] = vim.eval('__slem_sc')
     if window:    
-        vim.command('let __slem_wd = input("window number: ", "' + slem_vars['window'] + '")')
-        slem_vars['window'] = vim.eval('__slem_wd')
+        vim.command('let __slem_wd = input("window number: ", "' +
+            SLEM_VARS['window'] + '")')
+        SLEM_VARS['window'] = vim.eval('__slem_wd')
 
 endpython
 function! VimSlem(to_line)
 python << endpython
 import os
-from pipes import quote
-if len(slem_vars['screen']) < 1:
+import pipes
+if len(SLEM_VARS['screen']) < 1:
     ask_vars(screen=True, window=True)
+file_extension = vim.current.buffer.name.rsplit('.',1)[1]
 block = get_blocking_fn({
-    'filetype':get_file_ext(),
+    'filetype':file_extension,
     'to_line':vim.eval('a:to_line')
     })(vim.current.window.cursor)
 lines = extract(block[0], block[1])
 text = '\n'.join(lines) + '\n'
-if get_file_ext() == 'py' and lines[-1][0].isspace():
+if file_extension == 'py' and lines[-1][0].isspace():
     text += '\n'
-text = quote(text)
-message = 'screen -S ' + slem_vars['screen']
-message += ' -p ' + slem_vars['window']
+text = pipes.quote(text)
+message = 'screen -S ' + SLEM_VARS['screen']
+message += ' -p ' + SLEM_VARS['window']
 message += ' -X stuff ' + text 
 os.system(message)
 vim.command('return 1')
