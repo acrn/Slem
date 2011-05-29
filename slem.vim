@@ -1,5 +1,4 @@
-python << endpython
-
+python << END_PYTHON
 import vim
 
 def move_back(coords):
@@ -207,10 +206,9 @@ def ask_vars(screen=False, window=False):
         vim.command('let __slem_wd = input("window number: ", "' +
             SLEM_VARS['window'] + '")')
         SLEM_VARS['window'] = vim.eval('__slem_wd')
-
-endpython
+END_PYTHON
 function! VimSlem(to_line)
-python << endpython
+python << END_PYTHON
 import os
 import pipes
 if len(SLEM_VARS['screen']) < 1:
@@ -230,16 +228,15 @@ message += ' -p ' + SLEM_VARS['window']
 message += ' -X stuff ' + text 
 os.system(message)
 vim.command('return 1')
-endpython
+END_PYTHON
 endfunction
 
 function! VimSlemSettings(args)
-python << endpython
+python << END_PYTHON
 ask_vars(screen=('screen' in vim.eval('a:args')),
          window=('window' in vim.eval('a:args')))
-endpython
+END_PYTHON
 endfunction
-
 :imap <C-c><C-c> <C-O>:call VimSlem(-1)<CR>
 :imap <C-c><C-l> <C-O>:call VimSlem(input("to line: ", ""))<CR>
 :map <C-c><C-c> :call VimSlem(-1)<CR>
