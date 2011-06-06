@@ -40,26 +40,21 @@ def find_block_clj(coords):
 
         (* 2 #(+ 1 1))
 
-    would result send '(* 2 #(+ 1 1))' to the interpreter while:
+    would suggest a range containing '(* 2 (+ 1 1))' to be sent to the
+    interpreter while:
 
         (* 2 (+ 1 # 1))
 
-    would only send '(+ 1 1)'.
+    would suggest only '(+ 1 1)' be sent.
 
     The same rules apply to [] and {} structures as well. Shorthand syntax
     abnormalities such as '() are not currently supported.'''
 
-    char_count = {
-        '(':0,
-        ')':0,
-        '[':0,
-        ']':0,
-        '{':0,
-        '}':0}
+    char_count = {c: 0 for c in '()[]{}'}
     l = coords[0] - 1
     c = coords[1]    
     char = vim.current.buffer[l][c]
-    if char in ['(', '{', '[']:
+    if char in '({[':
         char_count[char] += 1
     while char_count[')'] >= char_count['('] \
           and char_count[']'] >= char_count['['] \
