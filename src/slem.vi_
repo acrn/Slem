@@ -1,14 +1,14 @@
 function! VimSlem(to_line)
-python << END_PYTHON
+python << EOL
 vim_slem(vim.eval('a:to_line'))
-END_PYTHON
+EOL
 return 1
 endfunction
 
 function! VimSlemSettings(args)
-python << END_PYTHON
+python << EOL
 ask_vars(screen=('screen' in vim.eval('a:args')),
          window=('window' in vim.eval('a:args')))
-END_PYTHON
+EOL
 return 1
 endfunction
