@@ -1,4 +1,6 @@
 python << END_PYTHON
+import os
+import pipes
 import vim
 
 def move_back(coords):
@@ -41,26 +43,21 @@ def find_block_clj(coords):
 
         (* 2 #(+ 1 1))
 
-    would result send '(* 2 #(+ 1 1))' to the interpreter while:
+    would suggest a range containing '(* 2 (+ 1 1))' to be sent to the
+    interpreter while:
 
         (* 2 (+ 1 # 1))
 
-    would only send '(+ 1 1)'.
+    would suggest only '(+ 1 1)' be sent.
 
     The same rules apply to [] and {} structures as well. Shorthand syntax
     abnormalities such as '() are not currently supported.'''
 
-    char_count = {
-        '(':0,
-        ')':0,
-        '[':0,
-        ']':0,
-        '{':0,
-        '}':0}
+    char_count = {c: 0 for c in '()[]{}'}
     l = coords[0] - 1
     c = coords[1]    
     char = vim.current.buffer[l][c]
-    if char in ['(', '{', '[']:
+    if char in '({[':
         char_count[char] += 1
     while char_count[')'] >= char_count['('] \
           and char_count[']'] >= char_count['['] \
@@ -206,29 +203,30 @@ def ask_vars(screen=False, window=False):
         vim.command('let __slem_wd = input("window number: ", "' +
             SLEM_VARS['window'] + '")')
         SLEM_VARS['window'] = vim.eval('__slem_wd')
+
+def vim_slem(to_line):
+    if len(SLEM_VARS['screen']) < 1:
+        ask_vars(screen=True, window=True)
+    file_extension = vim.current.buffer.name.rsplit('.',1)[1]
+    block = get_blocking_fn({
+        'filetype':file_extension,
+        'to_line':vim.eval(to_line)
+        })(vim.current.window.cursor)
+    lines = extract(block[0], block[1])
+    text = '\n'.join(lines) + '\n'
+    if file_extension == 'py' and lines[-1][0].isspace():
+        text += '\n'
+    text = pipes.quote(text)
+    message = 'screen -S ' + SLEM_VARS['screen']
+    message += ' -p ' + SLEM_VARS['window']
+    message += ' -X stuff ' + text 
+    os.system(message)
 END_PYTHON
 function! VimSlem(to_line)
 python << END_PYTHON
-import os
-import pipes
-if len(SLEM_VARS['screen']) < 1:
-    ask_vars(screen=True, window=True)
-file_extension = vim.current.buffer.name.rsplit('.',1)[1]
-block = get_blocking_fn({
-    'filetype':file_extension,
-    'to_line':vim.eval('a:to_line')
-    })(vim.current.window.cursor)
-lines = extract(block[0], block[1])
-text = '\n'.join(lines) + '\n'
-if file_extension == 'py' and lines[-1][0].isspace():
-    text += '\n'
-text = pipes.quote(text)
-message = 'screen -S ' + SLEM_VARS['screen']
-message += ' -p ' + SLEM_VARS['window']
-message += ' -X stuff ' + text 
-os.system(message)
-vim.command('return 1')
+vim_slem(vim.eval('a:to_line'))
 END_PYTHON
+return 1
 endfunction
 
 function! VimSlemSettings(args)
@@ -236,6 +234,7 @@ python << END_PYTHON
 ask_vars(screen=('screen' in vim.eval('a:args')),
          window=('window' in vim.eval('a:args')))
 END_PYTHON
+return 1
 endfunction
 :imap <C-c><C-c> <C-O>:call VimSlem(-1)<CR>
 :imap <C-c><C-l> <C-O>:call VimSlem(input("to line: ", ""))<CR>
