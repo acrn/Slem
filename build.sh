@@ -7,7 +7,7 @@ VIM_FILES=(slem.vi_ bindings.vi_)
 OUT_FILE=$1
 
 echo "$PYTHON << $ENDPYTHON" > $OUT_FILE
-grep -h import ${PYTHON_FILES[@]/#/$SRC_PATH/} | sort | uniq >> $OUT_FILE
+grep -h ^import ${PYTHON_FILES[@]/#/$SRC_PATH/} | sort | uniq >> $OUT_FILE
 
 for FILE in ${PYTHON_FILES[@]}
 do
