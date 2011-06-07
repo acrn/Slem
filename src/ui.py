@@ -2,7 +2,7 @@ import vim
 import os
 import pipes
 
-SLEM_VARS = {'screen':'', 'window':'0'}    
+SLEM_VARS = {'screen':'', 'window':'0'}
 
 def ask_vars(screen=False, window=False):
     '''Ask the user to supply the specified variables. The answers are stored
@@ -14,7 +14,7 @@ def ask_vars(screen=False, window=False):
         vim.command('let __slem_sc = input("screen name: ", "' +
             SLEM_VARS['screen'] + '")')
         SLEM_VARS['screen'] = vim.eval('__slem_sc')
-    if window:    
+    if window:
         vim.command('let __slem_wd = input("window number: ", "' +
             SLEM_VARS['window'] + '")')
         SLEM_VARS['window'] = vim.eval('__slem_wd')
@@ -34,5 +34,5 @@ def vim_slem(to_line):
     text = pipes.quote(text)
     message = 'screen -S ' + SLEM_VARS['screen']
     message += ' -p ' + SLEM_VARS['window']
-    message += ' -X stuff ' + text 
+    message += ' -X stuff ' + text
     os.system(message)
