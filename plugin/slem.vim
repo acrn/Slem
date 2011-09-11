@@ -17,7 +17,7 @@ def move_back(coords):
         while len(vim.current.buffer[l]) < 1:
             l -= 1
         c = len(vim.current.buffer[l]) - 1
-    return (l, c)	
+    return (l, c)
 
 def move_ahead(coords):
     '''Returns a position one step forwards in the buffer. should the current
@@ -33,7 +33,7 @@ def move_ahead(coords):
         l += 1
         while len(vim.current.buffer[l]) < 1:
             l+=1
-    return (l, c)    
+    return (l, c)
 
 def find_block_clj(coords):
     '''Finds a suitable range of code around the given position of the current
@@ -55,7 +55,7 @@ def find_block_clj(coords):
 
     char_count = {c: 0 for c in '()[]{}'}
     l = coords[0] - 1
-    c = coords[1]    
+    c = coords[1]
     char = vim.current.buffer[l][c]
     if char in '({[':
         char_count[char] += 1
@@ -66,16 +66,16 @@ def find_block_clj(coords):
         char = vim.current.buffer[l][c]
         if char in char_count:
             char_count[char] += 1
-    start = (l, c)        
+    start = (l, c)
     while char_count['('] > char_count[')'] \
           or char_count['['] > char_count[']'] \
           or char_count['{'] > char_count['}']:
         l, c = move_ahead((l, c))
-        char = vim.current.buffer[l][c]        
+        char = vim.current.buffer[l][c]
         if char in char_count:
             char_count[char] += 1
-    end = (l, c)       
-    return (start, end) 
+    end = (l, c)
+    return (start, end)
 
 def find_block_py(coords):
     '''Finds a suitable range of code around the given position in the current
@@ -89,12 +89,12 @@ def find_block_py(coords):
 
         >stuff = {'one_thing',
         >'another_thing'}
-    
+
     will not be treated as an atomic statement, while:
 
         >stuff = {'one_thing',
         >    'another_thing'}
-        
+
     will work as intended. I'll just assume no sane person writes code like the
     first example.'''
 
@@ -113,10 +113,10 @@ def find_block_py(coords):
         l += 1
         line = vim.current.buffer[l]
     if not (len(line) < 1 or line[0].isspace()):
-        l -= 1    
+        l -= 1
         line = vim.current.buffer[l]
     while len(line) < 1 or line.isspace():
-        l -= 1    
+        l -= 1
         line = vim.current.buffer[l]
     end = (l, len(vim.current.buffer[l]))
     return (start, end)
@@ -147,7 +147,7 @@ def get_blocking_fn(args={}):
     '''Returns a suitable function for selecting a range surrounding a position
     in the current buffer to send to an interpreter. The selection is based on
     a few things:
-        
+
         1) if "args" contains the key 'to_line' a function is used that simply
            sends the range from the beginning of the line of the position to
            the end of the line given.
@@ -170,7 +170,7 @@ def get_blocking_fn(args={}):
         return fns[args['filetype']]
     return find_block_line
 
-def extract(start, end):    
+def extract(start, end):
     '''Extracts the text in the range given of the current buffer to a list of
     strings'''
 
@@ -184,10 +184,10 @@ def extract(start, end):
         if len(vim.current.buffer[l]) > 1:
             o.append(vim.current.buffer[l])
         l += 1
-    o.append(vim.current.buffer[l][:end[1]+1])    
-    return o    
+    o.append(vim.current.buffer[l][:end[1]+1])
+    return o
 
-SLEM_VARS = {'screen':'', 'window':'0'}    
+SLEM_VARS = {'screen':'', 'window':'0'}
 
 def ask_vars(screen=False, window=False):
     '''Ask the user to supply the specified variables. The answers are stored
@@ -199,7 +199,7 @@ def ask_vars(screen=False, window=False):
         vim.command('let __slem_sc = input("screen name: ", "' +
             SLEM_VARS['screen'] + '")')
         SLEM_VARS['screen'] = vim.eval('__slem_sc')
-    if window:    
+    if window:
         vim.command('let __slem_wd = input("window number: ", "' +
             SLEM_VARS['window'] + '")')
         SLEM_VARS['window'] = vim.eval('__slem_wd')
@@ -219,7 +219,7 @@ def vim_slem(to_line):
     text = pipes.quote(text)
     message = 'screen -S ' + SLEM_VARS['screen']
     message += ' -p ' + SLEM_VARS['window']
-    message += ' -X stuff ' + text 
+    message += ' -X stuff ' + text
     os.system(message)
 END_PYTHON
 function! VimSlem(to_line)
