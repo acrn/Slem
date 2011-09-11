@@ -1,6 +1,0 @@
-:imap <C-c><C-c> <C-O>:call VimSlem(-1)<CR>
-:imap <C-c><C-l> <C-O>:call VimSlem(input("to line: ", ""))<CR>
-:map <C-c><C-c> :call VimSlem(-1)<CR>
-:map <C-c><C-l> :call VimSlem(input("to line: ", ""))<CR>
-:map <C-c>v :call VimSlemSettings("window")<CR>
-:map <C-c>V :call VimSlemSettings("screen,window")<CR>
